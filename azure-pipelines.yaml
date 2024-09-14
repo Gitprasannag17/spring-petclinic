@@ -1,0 +1,35 @@
+name: spc-yaml-pipeline
+trigger:
+  - master
+pool: default
+schedules:
+  - cron: '*/5 * * * *'
+    displayName: 'Day build'
+    branches:
+      include: 
+        - master
+      exclude:
+        - declarative
+    always: no
+  - cron: '30 23 * * 1-5'
+    displayName: 'Night build'
+    branches:
+      include: 
+        - master
+      exclude:
+        - scripted
+    always: true
+stages:
+  - stage: 'Build' 
+    displayName: 'Build spc project'
+    jobs:
+      - job: 'buildspcjob'
+        displayName: 'Build the spc job'
+        continueOnError: false
+        workspace:
+          clean: outputs
+        steps:
+          - task: Maven@3
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'package'
