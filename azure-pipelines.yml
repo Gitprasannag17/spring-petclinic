@@ -10,7 +10,8 @@ pool:
   default
 
 steps:
-- task: Maven@3
+
+- task: Maven@4
   inputs:
     mavenPomFile: 'pom.xml'
     mavenOptions: '-Xmx3072m'
@@ -20,18 +21,5 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
-    aadSqlPassword: 
-    aadSqlUsername: 
 
-- task: SonarQubePrepare@5
-  inputs:
-    SonarQube: 'YourSonarQubeConnection' # Service connection to SonarQube
-    scannerMode: 'CLI' # Or 'MSBuild' if using .NET projects
-    configMode: 'manual'
-    projectKey: 'your-project-key'
-    projectName: 'your-project-name'
-    projectVersion: '1.0'
-    extraProperties: |
-      sonar.exclusions=**/*.test.cs
-- task: SonarQubeAnalyze
-- task: SonarQubePublish
+
