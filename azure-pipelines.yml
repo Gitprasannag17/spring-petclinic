@@ -15,4 +15,4 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      curl -X GET "http://20.41.249.208:9000"
+      ping "http://20.41.249.208:9000" 5
