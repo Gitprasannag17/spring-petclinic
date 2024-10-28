@@ -15,4 +15,6 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      ping "http://20.41.249.208:9000" 5
+      curl -X GET "http://20.41.251.44:9000" || exit 1 \
+           -H "Authorization: Bearer 'sqa_bf51ea8808ec244dc4eb7f0c7999f9dc9d682145'" \
+           -o output.json
