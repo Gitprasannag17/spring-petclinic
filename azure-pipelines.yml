@@ -22,7 +22,7 @@ steps:
     extraProperties: |
       sonar.sources=src
       sonar.java.binaries=target/classes
-      sonar.host.url=http://20.41.251.44:9000
+      sonar.host.url=http://13.71.127.109:9000
       sonar.login='sqa_bf51ea8808ec244dc4eb7f0c7999f9dc9d682145'
       sonar.ws.timeout=60  
 
