@@ -11,20 +11,6 @@ pool:
 
 steps:
 
-- task: SonarQubePrepare@5
-  inputs:
-    SonarQube: 'sonar-service-Connection' # Service connection to SonarQube
-    scannerMode: 'CLI' # Or 'MSBuild' if using .NET projects
-    configMode: 'manual'
-    cliprojectKey: 'pgdevopsorg.spc'
-    cliprojectName: 'Spring-Pet-Clinic'
-    cliprojectVersion: '1.0'
-    extraProperties: |
-      sonar.sources=src
-      sonar.java.binaries=target/classes
-      sonar.host.url=http://13.71.127.109:9000
-      sonar.login='sqa_bf51ea8808ec244dc4eb7f0c7999f9dc9d682145'
-      sonar.ws.timeout=60  
 
 - task: Maven@4
   inputs:
@@ -37,9 +23,3 @@ steps:
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
 
-- task: SonarQubeAnalyze@5
-
-- task: SonarQubePublish@5
-  inputs:
-    pollingTimeoutSec: '300'
-  displayName: 'Publish SonarQube Analysis Results'
