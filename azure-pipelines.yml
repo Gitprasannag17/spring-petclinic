@@ -6,20 +6,54 @@
 trigger:
 - main
 
-pool:
-  default
+jobs:
+  - job: "Build"    
+    pool:
+      default
+    steps:
+     - script: |
+          echo "Build ID: $(Build.BuildId)"
+          echo "Build Number: $(Build.BuildNumber)"
+          echo "Source Branch: $(Build.SourceBranch)"    
+     - task: Maven@4
+       inputs:
+         mavenPomFile: 'pom.xml'
+         mavenOptions: '-Xmx1024m'
+         javaHomeOption: 'JDKVersion'
+         jdkVersionOption: '1.17'
+         jdkArchitectureOption: 'x64'
+         publishJUnitResults: true
+         testResultsFiles: '**/surefire-reports/TEST-*.xml'
+         goals: 'package'
 
-steps:
+  - job: "Release"
+    dependsOn: "Build"           
+    pool:
+      default
+    steps:
+      - checkout: self  # Checkout the code repository
+
+      - task: AzureCLI@2
+        displayName: 'Terraform Init and Apply'
+        inputs:
+          azureSubscription: '<YOUR-SERVICE-CONNECTION>'  # Azure service connection name
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            # Install Terraform (optional if not using UseTerraform task)
+            terraform --version
+            terraform init  # Initialize Terraform working directory
+            terraform apply -auto-approve  # Apply the configuration without interactive approval
+          displayName: 'Run terraform init and apply'
+          failOnStandardError: true    
 
 
-- task: Maven@4
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx1024m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.17'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
 
+
+
+      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+        inputs :
+          command: 'apply'
+          workingDirectory: '~/spc-azure-infra-module'
+          environmentServiceName: 'arm-service-connection'
+          commandOptions: '-auto-approve -var="build_id=$(Build.BuildNumber)"'  
