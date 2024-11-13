@@ -15,8 +15,7 @@ jobs:
           echo "Build ID: $(Build.BuildId)"
           echo "Build Number: $(Build.BuildNumber)"
           echo "Source Branch: $(Build.SourceBranch)"    
-     - checkout: self  # Checkout the code repository  
-       clean: true        
+
      - task: Maven@4
        inputs:
          mavenPomFile: 'pom.xml'
@@ -26,13 +25,7 @@ jobs:
          jdkArchitectureOption: 'x64'
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: 'package'
-     - task: Cache@2
-       inputs:
-         key: 'maven | "$(Agent.OS)" | pom.xml'
-         path: ~/.m2/repository
-         restoreKeys: |
-           maven | "$(Agent.OS)"
+         goals: 'clean install'
 
   - job: "Release"
     dependsOn: "Build"             
