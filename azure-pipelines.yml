@@ -7,28 +7,8 @@ trigger:
 - main
 
 jobs:
-  - job: "Build"    
-    pool:
-      default
-    steps:
-     - script: |
-          echo "Build ID: $(Build.BuildId)"
-          echo "Build Number: $(Build.BuildNumber)"
-          echo "Source Branch: $(Build.SourceBranch)"    
-     - checkout: self  # Checkout the code repository          
-     - task: Maven@4
-       inputs:
-         mavenPomFile: 'pom.xml'
-         mavenOptions: '-Xmx1024m'
-         javaHomeOption: 'JDKVersion'
-         jdkVersionOption: '1.17'
-         jdkArchitectureOption: 'x64'
-         publishJUnitResults: true
-         testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: 'package'
 
-  - job: "Release"
-    dependsOn: "Build"           
+  - job: "Release"          
     pool:
       default
     steps:      
@@ -40,8 +20,9 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: |
             # Install Terraform (optional if not using UseTerraform task)
+            cd ~/spc-azure-infra-module
             terraform --version
             terraform init  # Initialize Terraform working directory
-            terraform apply -auto-approve -var="build_id=$(Build.BuildNumber)" # Apply the configuration without interactive approval
+            terraform apply -auto-approve -var="build_id=1" # Apply the configuration without interactive approval
           displayName: 'Run terraform init and apply'
           failOnStandardError: true    
