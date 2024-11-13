@@ -25,6 +25,6 @@ jobs:
             cd ~/spc-azure-infra-module
             terraform --version
             terraform init  # Initialize Terraform working directory
-            terraform apply -auto-approve -var="build_id=1" # Apply the configuration without interactive approval
+            terraform apply -auto-approve -var="build_id=2" # Apply the configuration without interactive approval
           displayName: 'Run terraform init and apply'
           failOnStandardError: true    
