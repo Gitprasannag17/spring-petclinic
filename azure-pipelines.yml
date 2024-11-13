@@ -15,6 +15,7 @@ jobs:
           echo "Build ID: $(Build.BuildId)"
           echo "Build Number: $(Build.BuildNumber)"
           echo "Source Branch: $(Build.SourceBranch)"    
+     - checkout: self  # Checkout the code repository          
      - task: Maven@4
        inputs:
          mavenPomFile: 'pom.xml'
@@ -30,30 +31,17 @@ jobs:
     dependsOn: "Build"           
     pool:
       default
-    steps:
-      - checkout: self  # Checkout the code repository
-
+    steps:      
       - task: AzureCLI@2
         displayName: 'Terraform Init and Apply'
         inputs:
-          azureSubscription: '<YOUR-SERVICE-CONNECTION>'  # Azure service connection name
+          azureSubscription: 'arm-service-connection'  # Azure service connection name
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: |
             # Install Terraform (optional if not using UseTerraform task)
             terraform --version
             terraform init  # Initialize Terraform working directory
-            terraform apply -auto-approve  # Apply the configuration without interactive approval
+            terraform apply -auto-approve -var="build_id=$(Build.BuildNumber)" # Apply the configuration without interactive approval
           displayName: 'Run terraform init and apply'
           failOnStandardError: true    
-
-
-
-
-
-      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
-        inputs :
-          command: 'apply'
-          workingDirectory: '~/spc-azure-infra-module'
-          environmentServiceName: 'arm-service-connection'
-          commandOptions: '-auto-approve -var="build_id=$(Build.BuildNumber)"'  
