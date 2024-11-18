@@ -6,6 +6,13 @@
 trigger:
 - main
 
+resources:
+  repositories:
+    - repository: infra
+      type: git
+      name: gitprasannag17/spc-azure-infra-module
+      ref: refs/heads/main
+      
 jobs:
   - job: "Build"    
     pool:
@@ -31,9 +38,10 @@ jobs:
     dependsOn: "Build"             
     pool:
       default
+
+
     steps:      
-      - checkout: self
-        clean: false 
+      - checkout: infra
       - task: AzureCLI@2
         displayName: 'Terraform Init and Apply'
         inputs:
