@@ -8,9 +8,9 @@ trigger:
 
 resources:
   repositories:
-    - repository: infra
+    - repository: spc-azure-infra-module
       type: git
-      name: gitprasannag17/spc-azure-infra-module
+      name: Gitprasannag17/spc-azure-infra-module
       ref: refs/heads/main
       
 jobs:
@@ -41,7 +41,7 @@ jobs:
 
 
     steps:      
-      - checkout: infra
+      - checkout: spc-azure-infra-module
       - task: AzureCLI@2
         displayName: 'Terraform Init and Apply'
         inputs:
