@@ -24,8 +24,20 @@ stages:
         connectionType: 'Kubernetes Service Connection'
         kubernetesServiceEndpoint: 'aks-service-connection'
 
-    # 3. Query AKS for running pods in a namespace
+    # 4. Deploy application using Kubernetes manifests
+    - task: KubernetesManifest@0
+      displayName: Deploy Application to AKS
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: 'aks-service-connection'
+        namespace: 'default'
+        manifests: |
+          $(Pipeline.Workspace)/manifest.yaml
+
+
+    # 5. Verify the deployment
     - script: |
-        echo "Querying for running pods in the namespace 'default'..."
-        kubectl get pods -n spc-ns
-      displayName: Query Running Pods
+        echo "Verifying deployment..."
+        kubectl get pods -n default
+        kubectl get svc -n default
+      displayName: Verify Deployment
