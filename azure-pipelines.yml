@@ -1,49 +1,31 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
-
 trigger:
-- main
+- main  # Trigger on changes to the main branch
 
-jobs:
-  - job: "Build"    
+stages:
+- stage: QueryAndDeploy
+  displayName: Query and Deploy to AKS
+  jobs:
+  - job: QueryAndDeployJob
+    displayName: Interact with AKS
     pool:
-      default
+      vmImage: 'ubuntu-latest'
+
     steps:
-     - script: |
-          echo "Build ID: $(Build.BuildId)"
-          echo "Build Number: $(Build.BuildNumber)"
-          echo "Source Branch: $(Build.SourceBranch)"    
-     - task: Maven@4
-       inputs:
-         mavenPomFile: 'pom.xml'
-         mavenOptions: '-Xmx1024m'
-         javaHomeOption: 'JDKVersion'
-         jdkVersionOption: '1.17'
-         jdkArchitectureOption: 'x64'
-         publishJUnitResults: true
-         testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: 'clean install'      
+    # 1. Install kubectl (if not pre-installed)
+    - task: KubectlInstaller@0
+      displayName: Install kubectl
+      inputs:
+        kubectlVersion: 'latest'
 
-  - job: "ReleaseBuild"
-    dependsOn: "Build"             
-    pool:
-      default
-    steps:      
-      - checkout: self
-        clean: false
-      - task: AzureCLI@2
-        displayName: 'Terraform Init and Apply'
-        inputs:
-          azureSubscription: 'arm-service-connection'  # Azure service connection name
-          scriptType: bash
-          scriptLocation: inlineScript
-          inlineScript: |
-            # Install Terraform (optional if not using UseTerraform task)
-            cd ~/myagent/spc_work/2/s
-            terraform --version
-            terraform init  # Initialize Terraform working directory
-            terraform apply -auto-approve -var="build_id=$(Build.BuildId)" # Apply the configuration without interactive approval
-          displayName: 'Run terraform init and apply'
-          failOnStandardError: true    
+    # 2. Configure kubectl to use the Kubernetes Service Connection
+    - task: Kubernetes@1
+      displayName: Set Kubernetes context
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: 'aks-service-connection'
+
+    # 3. Query AKS for running pods in a namespace
+    - script: |
+        echo "Querying for running pods in the namespace 'default'..."
+        kubectl get pods -n spc-ns
+      displayName: Query Running Pods
