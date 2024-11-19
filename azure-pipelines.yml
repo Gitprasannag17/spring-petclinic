@@ -8,7 +8,7 @@ stages:
   - job: QueryAndDeployJob
     displayName: Interact with AKS
     pool:
-      vmImage: 'ubuntu-latest'
+      default
 
     steps:
     # 1. Install kubectl (if not pre-installed)
