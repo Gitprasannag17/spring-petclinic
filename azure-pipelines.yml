@@ -23,21 +23,3 @@ stages:
       inputs:
         connectionType: 'Kubernetes Service Connection'
         kubernetesServiceEndpoint: 'aks-service-connection'
-
-    # 4. Deploy application using Kubernetes manifests
-    - task: KubernetesManifest@0
-      displayName: Deploy Application to AKS
-      inputs:
-        action: 'deploy'
-        kubernetesServiceConnection: 'aks-service-connection'
-        namespace: 'default'
-        manifests: |
-          $(Pipeline.Workspace)/manifest.yaml
-
-
-    # 5. Verify the deployment
-    - script: |
-        echo "Verifying deployment..."
-        kubectl get pods -n default
-        kubectl get svc -n default
-      displayName: Verify Deployment
