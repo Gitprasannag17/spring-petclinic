@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: spcapp 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spcapp
+  template:
+    metadata:
+      labels:
+        app: spcapp 
+    spec:
+      containers:
+        - name: spcapp 
+          image: myacr0717.azurecr.io/spcapp
+          ports:
+          - containerPort: 8080
